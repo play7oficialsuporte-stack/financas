@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Finanças</title>
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --purple-main: #7c3aed;
+            --purple-light: #f3e8ff;
+            --text-title: #0f172a;
+            --text-body: #334155;
+            --text-muted: #94a3b8;
+            --red-main: #dc2626;
+            --green-main: #16a34a;
+            --blue-main: #2563eb;
+            --border-color: #f1f5f9;
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+            --yellow-ml: #fff159;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-body);
+            padding: 24px 16px 40px 16px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* HEADER PRINCIPAL COM A BORDA LATERAL */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .header-title-box {
+            border-left: 4px solid var(--purple-main);
+            padding-left: 12px;
+        }
+
+        .header-title-box h1 {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--text-title);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-title-box p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* BOTÃO DISCRETO DO MERCADO LIVRE NO TOPO */
+        .btn-ml-discreto {
+            background-color: var(--yellow-ml);
+            color: #2d3277;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: transform 0.1s ease;
+        }
+
+        .btn-ml-discreto:active {
+            transform: scale(0.96);
+        }
+
+        /* CARD PRINCIPAL (RESUMO / GRÁFICO) */
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 20px 20px 16px 20px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .badge-atual {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .badge-atual span {
+            background-color: var(--purple-main);
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 12px;
+        }
+
+        /* GRÁFICO DE BARRAS DA IMAGEM */
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 100px;
+            padding: 0 8px 10px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 16px;
+        }
+
+        .chart-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .bar-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #86efac;
+        }
+
+        .bar-pill {
+            width: 18px;
+            border-radius: 10px;
+        }
+
+        .bar-red {
+            height: 75px;
+            background-color: #ef4444;
+        }
+
+        .bar-green {
+            height: 85px;
+            background-color: #4ade80;
+        }
+
+        .chart-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+
+        .chart-label.active {
+            color: var(--purple-main);
+        }
+
+        /* SALDO E RESERVA */
+        .summary-grid {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 4px;
+        }
+
+        .summary-item {
+            flex: 1;
+        }
+
+        .summary-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .summary-value-red {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--red-main);
+        }
+
+        .summary-value-blue {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--blue-main);
+        }
+
+        .summary-link {
+            font-size: 0.72rem;
+            color: var(--blue-main);
+            text-decoration: underline;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        /* SEÇÃO DESPESAS / DÍVIDAS */
+        .despesas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .despesas-title {
+            color: var(--red-main);
+            font-size: 0.98rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-criar-divida {
+            color: var(--purple-main);
+            font-size: 0.82rem;
+            font-weight: 700;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .despesa-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .despesa-item:last-child {
+            border-bottom: none;
+        }
+
+        .despesa-nome {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-title);
+        }
+
+        .despesa-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .despesa-valor {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--red-main);
+        }
+
+        /* MODAL E PAINEL DISCRETO DO MERCADO LIVRE */
+        .ml-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .ml-modal-overlay.active {
+            display: flex;
+        }
+
+        .ml-modal-content {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.25s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .ml-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--yellow-ml);
+            padding-bottom: 8px;
+        }
+
+        .ml-modal-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-title);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-close-modal {
+            background: #f1f5f9;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .search-box-ml {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .input-ml {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.88rem;
+            outline: none;
+        }
+
+        .input-ml:focus {
+            border-color: var(--purple-main);
+        }
+
+        .btn-ml-search {
+            background: var(--purple-main);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .ml-result-card {
+            display: flex;
+            gap: 12px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .ml-result-img {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .ml-result-info {
+            flex: 1;
+        }
+
+        .ml-result-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-title);
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .ml-result-price {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--green-main);
+        }
+
+        .btn-add-despesa {
+            background: var(--purple-light);
+            color: var(--purple-main);
+            border: 1px solid #e9d5ff;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .link-ml-afiliado {
+            font-size: 0.72rem;
+            color: var(--blue-main);
+            text-decoration: underline;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        /* SEÇÃO META INFO / FOOTER */
+        .meta-info {
+            margin-top: 30px;
+            padding: 16px;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .meta-info h3 {
+            font-size: 0.85rem;
+            color: var(--text-title);
+            margin-bottom: 6px;
+        }
+
+        /* FAQ SECTION */
+        .faq-section {
+            margin-top: 20px;
+        }
+
+        .faq-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-title);
+            margin-bottom: 10px;
+            border-left: 3px solid var(--purple-main);
+            padding-left: 8px;
+        }
+
+        .faq-item {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .faq-question {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-title);
+            margin-bottom: 4px;
+        }
+
+        .faq-answer {
+            font-size: 0.78rem;
+            color: var(--text-body);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER IDÊNTICO COM O BOTÃO DISCRETO DO ML ADICIONADO -->
+    <div class="header-section">
+        <div class="header-title-box">
+            <h1>Olá, Diogo 👋</h1>
+            <p>Aqui está o resumo das suas finanças.</p>
+        </div>
+        <button class="btn-ml-discreto" onclick="abrirModalML()">
+            🛒 Buscar no ML
+        </button>
+    </div>
+
+    <!-- CARD PRINCIPAL DE FINANÇAS -->
+    <div class="card">
+        <div class="badge-atual">
+            <span>Atual</span>
+        </div>
+
+        <!-- GRÁFICO MESES -->
+        <div class="chart-container">
+            <div class="chart-col">
+                <div class="bar-dot"></div>
+                <span class="chart-label">JUN/26</span>
+            </div>
+            <div class="chart-col">
+                <div class="bar-dot"></div>
+                <span class="chart-label">JUL/26</span>
+            </div>
+            <div class="chart-col">
+                <div class="bar-pill bar-red"></div>
+                <span class="chart-label active">AGO/26</span>
+            </div>
+            <div class="chart-col">
+                <div class="bar-dot"></div>
+                <span class="chart-label">SET/26</span>
+            </div>
+            <div class="chart-col">
+                <div class="bar-dot"></div>
+                <span class="chart-label">OUT/26</span>
+            </div>
+            <div class="chart-col">
+                <div class="bar-pill bar-green"></div>
+                <span class="chart-label">NOV/26</span>
+            </div>
+        </div>
+
+        <!-- VALORES DO SALDO E RESERVA -->
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">Saldo do Mês • AGO/26</div>
+                <div class="summary-value-red">R$ -3.113,31</div>
+            </div>
+            <div class="summary-item" style="text-align: right;">
+                <div class="summary-label">Poupança / Reserva</div>
+                <div class="summary-value-blue">R$ 0,00</div>
+                <a class="summary-link">± Ajustar Reserva</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD DE DESPESAS / DÍVIDAS -->
+    <div class="card">
+        <div class="despesas-header">
+            <div class="despesas-title">
+                ↘ Despesas / Dívidas
+            </div>
+            <button class="btn-criar-divida">+ Criar Dívida</button>
+        </div>
+
+        <div id="listaDespesas">
+            <div class="despesa-item">
+                <div>
+                    <div class="despesa-nome">Pai</div>
+                    <div class="despesa-sub">1 subdivisõe neste mês</div>
+                </div>
+                <div class="despesa-valor">- R$ 50,00</div>
+            </div>
+
+            <div class="despesa-item">
+                <div>
+                    <div class="despesa-nome">Heitor</div>
+                    <div class="despesa-sub">1 subdivisõe neste mês</div>
+                </div>
+                <div class="despesa-valor">- R$ 1.000,00</div>
+            </div>
+
+            <div class="despesa-item">
+                <div>
+                    <div class="despesa-nome">Rael</div>
+                    <div class="despesa-sub">1 subdivisõe neste mês</div>
+                </div>
+                <div class="despesa-valor">- R$ 1.000,00</div>
+            </div>
+
+            <div class="despesa-item">
+                <div>
+                    <div class="despesa-nome">Tio Edio</div>
+                    <div class="despesa-sub">1 subdivisõe neste mês</div>
+                </div>
+                <div class="despesa-valor">- R$ 1.550,00</div>
+            </div>
+
+            <div class="despesa-item">
+                <div>
+                    <div class="despesa-nome">Queiroz</div>
+                    <div class="despesa-sub">1 subdivisõe neste mês</div>
+                </div>
+                <div class="despesa-valor">- R$ 225,00</div>
+            </div>
+
+            <div class="despesa-item">
+                <div>
+                    <div class="despesa-nome">Antena Oi Tv</div>
+                    <div class="despesa-sub">1 subdivisõe neste mês</div>
+                </div>
+                <div class="despesa-valor">- R$ 57,50</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ SECTION -->
+    <div class="faq-section">
+        <div class="faq-title">Perguntas Frequentes (FAQ)</div>
+        <div class="faq-item">
+            <div class="faq-question">Como funciona a busca de produtos com Afiliado?</div>
+            <div class="faq-answer">Você clica no botão amarelo "🛒 Buscar no ML" no topo, digita o item e a API traz os preços e o link com a sua tag de afiliado configurada.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">O layout original do meu app mudou?</div>
+            <div class="faq-answer">Não! Mantivemos todas as suas dívidas, saldo, reserva e gráficos exatamente iguais aos da sua imagem. Adicionamos apenas o gatilho discreto.</div>
+        </div>
+    </div>
+
+    <!-- META-INFO -->
+    <div class="meta-info">
+        <h3>📌 Meta-Informações da Aplicação</h3>
+        <p><strong>Versão:</strong> 2.1.0 (Integração Afiliados ML)</p>
+        <p><strong>Usuário:</strong> José Diogo Egídio de Oliveira</p>
+        <p><strong>Status API:</strong> Ativa e Funcional (Mercado Livre Brasil)</p>
+    </div>
+
+    <!-- MODAL DE BUSCA DO MERCADO LIVRE -->
+    <div class="ml-modal-overlay" id="modalML">
+        <div class="ml-modal-content">
+            <div class="ml-modal-header">
+                <div class="ml-modal-title">🛒 Testar Mercado Livre Afiliados</div>
+                <button class="btn-close-modal" onclick="fecharModalML()">✕</button>
+            </div>
+
+            <div class="search-box-ml">
+                <input type="text" id="inputML" class="input-ml" placeholder="Buscar no Mercado Livre (ex: Adubo, Whey, TV)...">
+                <button class="btn-ml-search" onclick="buscarNoMercadoLivre()">Buscar</button>
+            </div>
+
+            <div id="statusML" style="font-size:0.78rem; color:var(--text-muted); margin-bottom:10px;"></div>
+            <div id="resultadosML"></div>
+        </div>
+    </div>
+
+    <script>
+        // DIGITE SUA TAG DE AFILIADO AQUI
+        const TAG_AFILIADO_ML = "SUA_TAG_AQUI";
+
+        function abrirModalML() {
+            document.getElementById('modalML').classList.add('active');
+        }
+
+        function fecharModalML() {
+            document.getElementById('modalML').classList.remove('active');
+        }
+
+        async function buscarNoMercadoLivre() {
+            const termo = document.getElementById('inputML').value.trim();
+            const status = document.getElementById('statusML');
+            const container = document.getElementById('resultadosML');
+
+            if (!termo) {
+                alert('Digite um termo para pesquisar!');
+                return;
+            }
+
+            status.innerText = 'Pesquisando produtos no Mercado Livre...';
+            container.innerHTML = '';
+
+            try {
+                const response = await fetch(`https://api.mercadolibre.com/sites/MLB/search?q=${encodeURIComponent(termo)}&limit=4`);
+                const data = await response.json();
+
+                if (!data.results || data.results.length === 0) {
+                    status.innerText = 'Nenhum produto encontrado.';
+                    return;
+                }
+
+                status.innerText = `Resultados encontrados (${data.results.length}):`;
+
+                data.results.forEach(item => {
+                    const precoFmt = item.price.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                    
+                    let linkAfiliado = item.permalink;
+                    if(TAG_AFILIADO_ML && TAG_AFILIADO_ML !== "SUA_TAG_AQUI") {
+                        linkAfiliado += `?matt_tool=${TAG_AFILIADO_ML}`;
+                    }
+
+                    const itemHtml = `
+                        <div class="ml-result-card">
+                            <img src="${item.thumbnail}" class="ml-result-img">
+                            <div class="ml-result-info">
+                                <div class="ml-result-title">${item.title}</div>
+                                <div class="ml-result-price">R$ ${precoFmt}</div>
+                                <div>
+                                    <button class="btn-add-despesa" onclick="adicionarComoDespesa('${item.title.replace(/'/g, "")}', ${item.price})">
+                                        + Add às Despesas
+                                    </button>
+                                    <a href="${linkAfiliado}" target="_blank" class="link-ml-afiliado">Comprar ML 🔗</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += itemHtml;
+                });
+
+            } catch (err) {
+                console.error(err);
+                status.innerText = 'Erro ao conectar à API do Mercado Livre.';
+            }
+        }
+
+        function adicionarComoDespesa(nome, valor) {
+            const lista = document.getElementById('listaDespesas');
+            const novoItem = document.createElement('div');
+            novoItem.className = 'despesa-item';
+            novoItem.innerHTML = `
+                <div>
+                    <div class="despesa-nome">${nome.substring(0, 22)}...</div>
+                    <div class="despesa-sub">Adicionado via Mercado Livre</div>
+                </div>
+                <div class="despesa-valor">- R$ ${valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+            `;
+            lista.prepend(novoItem);
+            fecharModalML();
+            alert('Item adicionado à sua lista de despesas!');
+        }
+    </script>
+</body>
+</html>
